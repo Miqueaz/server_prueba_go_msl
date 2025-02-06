@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"server/db"
-	"server/proto"
+	"server/core/connection/db"
+	"server/core/connection/proto"
 
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
@@ -93,6 +93,7 @@ func (s *server) Get(ctx context.Context, req *proto.DynamicRequest) (*proto.Bas
 }
 
 func main() {
+
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatalf("Error cargando el archivo .env: %v", err)
@@ -108,7 +109,10 @@ func main() {
 	}
 
 	// Crear el servidor gRPC
-	s := grpc.NewServer()
+	s := grpc.NewServer(
+		grpc.MaxRecvMsgSize(16*1024*1024), // Tamaño máximo del mensaje recibido (16 MB)
+		grpc.MaxSendMsgSize(16*1024*1024), // Tamaño máximo del mensaje enviado (16 MB)
+	)
 	proto.RegisterBaseServer(s, &server{})
 
 	// Registrar la reflexión (opcional)
