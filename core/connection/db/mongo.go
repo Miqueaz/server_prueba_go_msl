@@ -41,7 +41,7 @@ func InsertDocument(document interface{}) (*mongo.InsertOneResult, error) {
 // FindDocuments encuentra múltiples documentos en la colección
 func FindDocuments(filter interface{}, collectionName string) (*mongo.Cursor, error) {
 	dbName := os.Getenv("DATABASE")
-	collection = client.Database(dbName).Collection(collectionName)
+	// collection = client.Database(dbName).Collection(collectionName)
 	// Obtener el nombre de la base de datos desde el archivo .env
 	collection = client.Database(dbName).Collection(collectionName)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)

@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	Structures "server/core/structures"
+	"time"
+)
 
 // Movie representa la estructura de una película
 type Movie struct {
@@ -25,4 +28,8 @@ type Movie struct {
 	Type             string                 `bson:"type" json:"type"`                             // Tipo (e.g., película)
 	Tomatoes         map[string]interface{} `bson:"tomatoes" json:"tomatoes"`                     // Información de Rotten Tomatoes
 	PlotEmbedding    []float64              `bson:"plot_embedding" json:"plot_embedding"`         // Embedding de la sinopsis
+}
+
+func init() {
+	Structures.NewModel("Movie", "movies", Movie{})
 }
