@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"server/core/connection/db"
 
-	// "server/core/hooks"
+	"server/core/hooks"
 
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -12,7 +12,7 @@ import (
 // BaseModelController maneja operaciones CRUD
 type BaseModelController struct {
 	Model
-	// hooks.Hookable
+	hooks.Hookable
 }
 
 type Methods interface {
@@ -29,17 +29,17 @@ func (s *BaseModelController) Read(filter map[string]interface{}) (*mongo.Cursor
 	fmt.Printf("Reading from collection '%s' with filter: %v\n", s.Model.CollectionName, filter)
 
 	// Ejecutar hooks antes del Read
-	// if err := s.ExecuteHooks(s.BeforeRead, filter); err != nil {
-	// 	return nil, err
-	// }
+	if err := s.ExecuteHooks(s.BeforeRead, filter); err != nil {
+		return nil, err
+	}
 
 	// Simula llamada a la base de datos
 	data, err := db.FindDocuments(filter, s.Model.CollectionName) // Simula db.FindDocuments
 
 	// Ejecutar hooks después del Read
-	// if err == nil {
-	// 	_ = s.ExecuteHooks(s.AfterRead, filter) // Ignoramos errores de hooks posteriores
-	// }
+	if err == nil {
+		_ = s.ExecuteHooks(s.AfterRead, filter) // Ignoramos errores de hooks posteriores
+	}
 
 	return data, err
 }
