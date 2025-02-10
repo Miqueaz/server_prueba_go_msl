@@ -22,13 +22,15 @@ func (s *Server) Get(ctx context.Context, req *proto.DynamicRequest) (*proto.Bas
 	filter := bson.M{}
 	filters := req.GetFilters()
 	collection := req.GetCollection()
+	config := map[string]int{"page": int(req.GetConfig().Page), "pageSize": int(req.GetConfig().PageSize)}
+
 	for key, value := range filters {
 		filter[key] = value
 		fmt.Printf("filter[%s] = %v\n", key, value)
 	}
 
 	controller := base.GetController(collection)
-	data, err := controller.Read(filter)
+	data, err := controller.Read(filter, config)
 	cursor := data
 	if err != nil {
 		log.Printf("Error al buscar documentos en MongoDB: %v", err)

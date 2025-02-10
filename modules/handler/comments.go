@@ -11,10 +11,10 @@ type commentModel struct {
 	base.BaseModelController
 }
 
-func (c *commentModel) Read(filter map[string]interface{}) (*mongo.Cursor, error) {
+func (c *commentModel) Read(filter map[string]interface{}, config map[string]int) (*mongo.Cursor, error) {
 	fmt.Println("Comment")
 
-	return c.BaseModelController.Read(filter)
+	return c.BaseModelController.Read(filter, config)
 }
 
 func CommentControllerInit(model base.Model) {

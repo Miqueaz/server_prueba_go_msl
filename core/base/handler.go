@@ -15,8 +15,9 @@ type BaseModelController struct {
 	hooks.Hookable
 }
 
+// Methods define los métodos CRUD
 type Methods interface {
-	Read(filter map[string]interface{}) (*mongo.Cursor, error)
+	Read(filter map[string]interface{}, config map[string]int) (*mongo.Cursor, error)
 	Insert(data map[string]interface{}) error
 	Update(filter map[string]interface{}, data map[string]interface{}) error
 	Delete(filter map[string]interface{}) error
@@ -25,7 +26,7 @@ type Methods interface {
 // Métodos CRUD implementados por BaseModelController
 
 // Método Read con soporte de hooks
-func (s *BaseModelController) Read(filter map[string]interface{}) (*mongo.Cursor, error) {
+func (s *BaseModelController) Read(filter map[string]interface{}, config map[string]int) (*mongo.Cursor, error) {
 	fmt.Printf("Reading from collection '%s' with filter: %v\n", s.Model.CollectionName, filter)
 
 	// Ejecutar hooks antes del Read
@@ -34,7 +35,7 @@ func (s *BaseModelController) Read(filter map[string]interface{}) (*mongo.Cursor
 	}
 
 	// Simula llamada a la base de datos
-	data, err := db.FindDocuments(filter, s.Model.CollectionName) // Simula db.FindDocuments
+	data, err := db.FindDocuments(filter, s.Model.CollectionName, int64(config["page"]), int64(config["pageSize"])) // Simula db.FindDocuments
 
 	// Ejecutar hooks después del Read
 	if err == nil {

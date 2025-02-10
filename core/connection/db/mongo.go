@@ -39,18 +39,32 @@ func InsertDocument(document interface{}) (*mongo.InsertOneResult, error) {
 }
 
 // FindDocuments encuentra múltiples documentos en la colección
-func FindDocuments(filter interface{}, collectionName string) (*mongo.Cursor, error) {
-	dbName := os.Getenv("DATABASE")
-	// collection = client.Database(dbName).Collection(collectionName)
+func FindDocuments(filter interface{}, collectionName string, page int64, pageSize int64) (*mongo.Cursor, error) {
 	// Obtener el nombre de la base de datos desde el archivo .env
-	collection = client.Database(dbName).Collection(collectionName)
+	dbName := os.Getenv("DATABASE")
+
+	// Obtener la colección de la base de datos
+	collection := client.Database(dbName).Collection(collectionName)
+
+	// Calcular el número de documentos a omitir (skip) y el límite de la página
+	skip := (page - 1) * pageSize
+	limit := pageSize
+
+	// Configuración de las opciones de consulta
+	opts := options.Find().
+		SetSkip(skip).
+		SetLimit(limit)
+
+	// Contexto con timeout
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	cursor, err := collection.Find(ctx, filter)
+	// Realizar la consulta con paginación
+	cursor, err := collection.Find(ctx, filter, opts)
 	if err != nil {
 		return nil, err
 	}
+
 	return cursor, nil
 }
 
