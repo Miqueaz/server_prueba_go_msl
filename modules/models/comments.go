@@ -1,7 +1,8 @@
 package models
 
 import (
-	Structures "server/core/structures"
+	base "server/core/base"
+	"server/modules/handler"
 	"time"
 )
 
@@ -20,5 +21,5 @@ type commentModel struct {
 }
 
 func init() {
-	Structures.NewModel(nombre, collectionName, commentModel{})
+	handler.CommentControllerInit(*base.NewModel(nombre, collectionName, commentModel{}))
 }

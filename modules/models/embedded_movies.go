@@ -1,7 +1,7 @@
 package models
 
 import (
-	Structures "server/core/structures"
+	base "server/core/base"
 	"time"
 )
 
@@ -31,5 +31,5 @@ type Movie struct {
 }
 
 func init() {
-	Structures.NewModel("Movie", "movies", Movie{})
+	base.NewModel("Movie", "movies", Movie{})
 }

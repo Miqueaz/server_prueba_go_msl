@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package grpcgo;
 
-option go_package = "./proto;proto";
+option go_package = "routes/proto;proto";
 
 service Base {
   rpc Get(DynamicRequest) returns (BaseResponse);

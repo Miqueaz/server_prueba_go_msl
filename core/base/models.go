@@ -1,4 +1,4 @@
-package Structures
+package base
 
 type Model struct {
 	Name           string      `json:"name"`
@@ -8,7 +8,7 @@ type Model struct {
 
 var models = []map[string]*Model{}
 
-func NewModel(name string, collectionName string, structure interface{}) (*Model, error) {
+func NewModel(name string, collectionName string, structure interface{}) *Model {
 	model := &Model{
 		Name:           name,
 		CollectionName: collectionName,
@@ -16,7 +16,8 @@ func NewModel(name string, collectionName string, structure interface{}) (*Model
 	}
 	// Guardar el modelo (se asume que esta función maneja cualquier error internamente)
 	saveModel(model)
-	return model, nil
+	NewController(*model)
+	return model
 }
 
 func GetModels() []*Model {
