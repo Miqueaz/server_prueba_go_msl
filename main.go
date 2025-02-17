@@ -16,7 +16,7 @@ import (
 
 func main() {
 	// Cargar configuración del entorno
-	err := godotenv.Load()
+	err := godotenv.Load("/app/.env")
 	if err != nil {
 		log.Fatalf("Error cargando el archivo .env: %v", err)
 	}

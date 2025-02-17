@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  go_server:
+    image: artzeyr/dev5:go_server
+    build:
+      context: ..
+      dockerfile: build/go.dockerfile
+    container_name: go_server
+    env_file:
+      - ../.env
+    volumes:
+      - ../.env:/app/.env  # Monta el archivo .env dentro del contenedor
+    ports:
+      - "50051:50051" # Puerto gRPC
+    networks:
+      - app_network
+    entrypoint: ["/bin/sh", "-c", "curl -o /etc/ssl/certs/mongodb-ca.pem https://www.mongodb.com/root-cert && exec ./server"]
+
+  envoy:
+    image: artzeyr/dev5:envoy
+    build:
+      context: .
+      dockerfile: envoy.dockerfile  # Nombre del Dockerfile personalizado
+    container_name: envoy_proxy
+    volumes:
+      - C:\Users\Arturo\Documents\GitHub\dev5\envoyproxy\config.yaml:/etc/envoy/envoy.yaml
+    ports:
+      - "8080:8080"  # Exponer REST vía Envoy
+      - "9901:9901"  # Panel de control de Envoy
+    depends_on:
+      - go_server
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
