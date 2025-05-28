@@ -6,25 +6,31 @@ import (
 	"server/core/hooks"
 )
 
+type Model struct {
+	Name           string      `json:"name"`
+	CollectionName string      `json:"collectionName"`
+	Structure      interface{} `json:"structure"`
+}
+
 // BaseModelController maneja operaciones CRUD
-type BaseModelController[T any] struct {
-	Model[T]
+type BaseModelController struct {
 	hooks.Hookable
 	hooks.Cleaners
+	Model
 }
 
 // Methods define los métodos CRUD
-type Methods[T any] interface {
-	Read(filter map[string]T, config map[string]int) ([]T, error)
-	Insert(data T) error
-	Update(filter map[string]any, data T) error
-	Delete(filter map[string]any) error
+type Methods interface {
+	Read(filter map[string]any, config map[string]int) ([]map[string]any, error)
+	Insert(data map[string]interface{}) error
+	Update(filter map[string]interface{}, data map[string]interface{}) error
+	Delete(filter map[string]interface{}) error
 }
 
 // Métodos CRUD implementados por BaseModelController
 
 // Método Read con soporte de hooks
-func (s *BaseModelController[T]) Read(filter map[string]any, config map[string]int) ([]map[string]any, error) {
+func (s *BaseModelController) Read(filter map[string]any, config map[string]int) ([]map[string]any, error) {
 
 	// Ejecutar hooks antes del Read
 	if err := s.ExecuteHooks(s.BeforeRead, filter); err != nil {
@@ -37,7 +43,7 @@ func (s *BaseModelController[T]) Read(filter map[string]any, config map[string]i
 		s.Model.CollectionName,
 		int64(config["page"]),
 		int64(config["pageSize"]),
-	))
+	)) // Simula db.FindDocuments
 
 	// Ejecutar hooks después del Read
 	if err == nil {
@@ -48,23 +54,23 @@ func (s *BaseModelController[T]) Read(filter map[string]any, config map[string]i
 }
 
 // Insert: Insertar datos en la base de datos
-func (s *BaseModelController[T]) Insert(data map[string]interface{}) error {
-	fmt.Printf("Insertando datos en la colección '%s': %v\n", data)
+func (b *BaseModelController) Insert(data map[string]interface{}) error {
+	fmt.Printf("Insertando datos en la colección '%s': %v\n", b.Model.CollectionName, data)
 	// return db.InsertDocument(data, b.Model.CollectionName) // Implementación real de inserción
 	return nil
 }
 
 // Update: Actualizar datos en la base de datos
-func (s *BaseModelController[T]) Update(filter map[string]interface{}, data map[string]interface{}) error {
-	fmt.Printf("Actualizando datos de la colección '%s' con el filtro: %v y los datos: %v\n", filter, data)
+func (b *BaseModelController) Update(filter map[string]interface{}, data map[string]interface{}) error {
+	fmt.Printf("Actualizando datos de la colección '%s' con el filtro: %v y los datos: %v\n", b.Model.CollectionName, filter, data)
 	// return db.UpdateDocument(filter, data, b.Model.CollectionName) // Implementación real de actualización
 	return nil
 
 }
 
 // Delete: Eliminar datos de la base de datos
-func (s *BaseModelController[T]) Delete(filter map[string]interface{}) error {
-	fmt.Printf("Eliminando datos de la colección '%s' con el filtro: %v\n", filter)
+func (b *BaseModelController) Delete(filter map[string]interface{}) error {
+	fmt.Printf("Eliminando datos de la colección '%s' con el filtro: %v\n", b.Model.CollectionName, filter)
 	// return db.DeleteDocument(filter, b.Model.CollectionName) // Implementación real de eliminación
 	return nil
 

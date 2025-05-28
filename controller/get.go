@@ -1,15 +1,17 @@
-// controlador/server.go
 package controller
 
 import (
 	"context"
 	"fmt"
 	"log"
-	"server/core/base"
 	"server/helpers"
+	"server/modules/handlers"
 	"server/routes/proto"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/structpb"
 )
 
 // Definir el servicio
@@ -22,17 +24,26 @@ func (s *Server) Get(ctx context.Context, req *proto.DynamicRequest) (*proto.Bas
 	filter := bson.M{}
 	filters := req.GetFilters()
 	collection := req.GetCollection()
-	config := map[string]int{"page": int(req.GetConfig().Page), "pageSize": int(req.GetConfig().PageSize)}
+	config := map[string]int{
+		"page":     int(req.GetConfig().Page),
+		"pageSize": int(req.GetConfig().PageSize),
+	}
 
+	// Construir el filtro a partir de los parámetros
 	for key, value := range filters {
 		filter[key] = value
 		fmt.Printf("filter[%s] = %v\n", key, value)
 	}
 
-	controller := base.GetController(collection)
-	data, err := controller.Read(filter, config)
-	cursor := data
-	if err != nil {
+	// Obtener el controlador para la colección y los documentos
+	_, ok := handlers.GetController(collection)
+	if !ok {
+		log.Println("ERROR: No se encontró el controlador para 'Comentarios'")
+		return nil, status.Error(codes.NotFound, "Controlador no encontrado")
+	}
+
+	documents, err := handlers.CommentController.Read(filter, config)
+	if err != nil || len(documents) == 0 {
 		log.Printf("Error al buscar documentos en MongoDB: %v", err)
 		return &proto.BaseResponse{
 			Status:  404,
@@ -40,31 +51,25 @@ func (s *Server) Get(ctx context.Context, req *proto.DynamicRequest) (*proto.Bas
 		}, nil
 	}
 
-	var documents []bson.M
-	if err := cursor.All(ctx, &documents); err != nil {
-		log.Printf("Error al decodificar documentos: %v", err)
-		return nil, err
-	}
-
-	if len(documents) == 0 {
-		return &proto.BaseResponse{
-			Status:  404,
-			Message: "No se encontraron documentos en la base de datos.",
-		}, nil
-	}
-
+	// Convertir los documentos BSON a google.protobuf.Struct
 	var dataList []*proto.Data
 	for _, doc := range documents {
-		convertedDoc := helpers.ConvertBsonToMap(doc) // Convertir BSON a map compatible
-		convertedToStringDoc, err := helpers.ConvertMapToStrings(convertedDoc)
+		// Convertir el BSON a un mapa de any
+		convertedDoc := helpers.ConvertBsonToMap(doc)
+
+		// Convertir el mapa a google.protobuf.Struct
+		structDoc, err := structpb.NewStruct(convertedDoc)
 		if err != nil {
-			log.Printf("Error al convertir el documento a string: %v", err)
+			log.Printf("Error al convertir BSON a Struct: %v", err)
 			return nil, err
 		}
-		protoDoc := &proto.Data{Data: convertedToStringDoc}
+
+		// Crear un objeto proto.Data con el struct y agregarlo a la lista
+		protoDoc := &proto.Data{Data: structDoc}
 		dataList = append(dataList, protoDoc)
 	}
 
+	// Devolver la respuesta con los documentos encontrados
 	return &proto.BaseResponse{
 		Status:  200,
 		Message: "Documentos encontrados en la base de datos.",

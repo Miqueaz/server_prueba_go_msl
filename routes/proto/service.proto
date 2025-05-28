@@ -4,6 +4,8 @@ package grpcgo;
 
 option go_package = "routes/proto;proto";
 
+import "google/protobuf/struct.proto";
+
 service Base {
   rpc Get(DynamicRequest) returns (BaseResponse);
   rpc Administrate(DynamicRequest) returns (BaseResponse);
@@ -15,14 +17,21 @@ message Server {
   string message = 3;
 }
 
+message PageMetadata {
+  int32 total = 1;
+  int32 page = 2;
+  int32 pageSize = 3;
+  Server server = 4;
+}
+
 message DynamicRequest {
   int32 method = 1;
   string collection = 2;
-  map<string, string> filters = 3; // Permite datos flexibles en JSON
+  map<string, string> filters = 3; // Puedes dejar esto si solo necesitas filtros simples
   Config config = 4;
 }
 
-message Config  {
+message Config {
   int64 page = 1;
   int64 pageSize = 2;
 }
@@ -30,10 +39,10 @@ message Config  {
 message BaseResponse {
   int32 status = 1;
   string message = 2;
-  repeated Data data = 3; // Respuesta flexible en JSON
-  Server server = 4;
+  repeated Data data = 3;
+  optional PageMetadata meta = 4;
 }
 
 message Data {
-  map<string, string> data = 1;
-}
+  google.protobuf.Struct data = 1; // Aquí se permite estructura anidada y compleja
+ }

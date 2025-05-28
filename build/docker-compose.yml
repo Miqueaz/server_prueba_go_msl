@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  grpc_backend:
+    image: artzeyr/dev5:go_server
+    build:
+      context: ..
+      dockerfile: build/go.dockerfile
+    container_name: go_server
+    env_file:
+      - ../.env
+    volumes:
+      - ../.env:/app/.env  # Monta el archivo .env dentro del contenedor
+    ports:
+      - "50051:50051" # Puerto gRPC
+
+    entrypoint: ["/bin/sh", "-c", "curl -o /etc/ssl/certs/mongodb-ca.pem https://www.mongodb.com/root-cert && exec ./server"]
+
+  envoy:
+    image: envoyproxy/envoy
+    container_name: envoy
+    ports:
+      - "9901:9901"  # Puerto de administración de Envoy
+      - "50052:50051"  # Redirige el tráfico gRPC a través de un puerto diferente
+    volumes:
+      - ./envoy.yaml:/etc/envoy/envoy.yaml  # Monta la configuración de Envoy
+    depends_on:
+      - grpc_backend  # Asegura que el backend esté activo antes de iniciar Envoy

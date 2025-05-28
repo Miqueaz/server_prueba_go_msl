@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"log"
 	"net"
-	controller "server/controller"
+
+	"server/controller"
 	"server/core/connection/db"
 	_ "server/modules/models"
 	"server/routes/proto"

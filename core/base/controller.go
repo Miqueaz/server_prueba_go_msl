@@ -1,33 +1,53 @@
 package base
 
+import (
+	"log"
+	"server/helpers"
+	"sync"
+)
+
 // Controller agrupa un modelo con sus métodos
-type Controller struct {
-	Model
-	Methods
+type Controller[T any] struct {
+	BaseModelController[T]
 }
 
-// Mapa global para almacenar controladores
-var controllers = make(map[string]*Controller)
+// Mapa global de modelos (uso de sync.Map para concurrencia y tipos mixtos)
+var controllers sync.Map // key: string, value: *Model[any]
 
-// Crear un nuevo controlador con métodos por defecto
-func NewController(model Model) {
-	methods := &BaseModelController{Model: model}
-	controller := &Controller{Model: model, Methods: methods}
-	SaveController(controller)
+// Crear un nuevo modelo y guardarlo
+func NewController[T any](model Model[T]) (*Controller[T], bool) {
+	controller := &Controller[T]{
+		BaseModelController: BaseModelController[T]{
+			Model: model,
+		},
+	}
+	helpers.SaveStructure(controller, &controllers)
+	return controller, true
 }
 
-// Crear un nuevo controlador con métodos personalizados
-func NewControllerWithMethods(model Model, methods Methods) {
-	controller := &Controller{Model: model, Methods: methods}
-	SaveController(controller)
+// Obtener un modelo usando type assertion
+func GetController[T any]() (*Controller[T], bool) {
+
+	if value, ok := helpers.LoadStructure[Controller[T]](&controllers); ok {
+		return value, true
+	}
+
+	// Si no se encuentra el controlador, imprimir un mensaje de error
+	if newController, ok := GeneratorController[T](); ok {
+		return newController, true
+	}
+
+	return nil, false
 }
 
-// Guardar un controlador en el mapa global
-func SaveController(controller *Controller) {
-	controllers[controller.Model.Name] = controller
-}
+// Generador de controlladores
+func GeneratorController[T any]() (*Controller[T], bool) {
+	log.Print("Generando controllador")
+	if model, ok := GetModel[T](); ok {
+		if newController, ok := NewController(*model); ok {
+			return newController, true
+		}
+	}
 
-// Obtener un controlador por su nombre
-func GetController(name string) *Controller {
-	return controllers[name]
+	return nil, false
 }

@@ -20,7 +20,7 @@ type Movie struct {
 	Released         *time.Time             `bson:"released" json:"released"`                     // Fecha de estreno
 	Directors        []string               `bson:"directors" json:"directors"`                   // Directores
 	Writers          []string               `bson:"writers" json:"writers"`                       // Escritores
-	Awards           map[string]string      `bson:"awards" json:"awards"`                         // Premios recibidos
+	Awards           map[string]interface{} `bson:"awards" json:"awards"`                         // Premios recibidos
 	LastUpdated      string                 `bson:"lastupdated" json:"lastupdated"`               // Última fecha de actualización
 	Year             int                    `bson:"year" json:"year"`                             // Año de lanzamiento
 	IMDB             map[string]interface{} `bson:"imdb" json:"imdb"`                             // Información de IMDB
@@ -31,5 +31,5 @@ type Movie struct {
 }
 
 func init() {
-	base.NewModel("Movie", "movies", Movie{})
+	base.NewModel[Movie]("Peliculas", "movies")
 }

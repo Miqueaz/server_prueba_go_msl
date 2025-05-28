@@ -1,44 +1,46 @@
 package base
 
-type Model struct {
-	Name           string      `json:"name"`
-	CollectionName string      `json:"collectionName"`
-	Structure      interface{} `json:"structure"`
+import (
+	"log"
+	"server/helpers"
+	"sync"
+)
+
+// Modelo genérico
+type Model[T any] struct {
+	Name           string `json:"name"`
+	CollectionName string `json:"collectionName"`
+	Structure      T      `json:"structure"`
 }
 
-var models = []map[string]*Model{}
+// Mapa global de modelos (uso de sync.Map para concurrencia y tipos mixtos)
+var models sync.Map // key: string, value: *Model[any]
 
-func NewModel(name string, collectionName string, structure interface{}) *Model {
-	model := &Model{
+// Crear un nuevo modelo y guardarlo
+func NewModel[T any](name string, collectionName string) *Model[T] {
+
+	model := &Model[T]{
 		Name:           name,
 		CollectionName: collectionName,
-		Structure:      structure,
 	}
-	// Guardar el modelo (se asume que esta función maneja cualquier error internamente)
-	saveModel(model)
-	NewController(*model)
-	return model
-}
+	helpers.SaveStructure(model, &models)
 
-func GetModels() []*Model {
-	var result []*Model
-	for _, modelMap := range models {
-		for _, model := range modelMap {
-			result = append(result, model)
-		}
+	if m, ok := helpers.LoadStructure[Model[T]](&models); ok {
+		log.Printf("Modelo '%s' creado y almacenado con éxito.\n", m.Name)
+		return model
 	}
-	return result
-}
 
-func GetModel(name string) *Model {
-	for _, model := range models {
-		if m, ok := model[name]; ok {
-			return m
-		}
-	}
 	return nil
 }
 
-func saveModel(model *Model) {
-	models = append(models, map[string]*Model{model.Name: model})
+// Obtener un modelo usando type assertion
+func GetModel[T any]() (*Model[T], bool) {
+	log.Print("Cargando Modelo")
+
+	if value, ok := helpers.LoadStructure[Model[T]](&models); ok {
+		log.Print("Modelo Obtenido: ", value.Name)
+		return value, true
+	}
+	log.Print("No se encontro el modelo")
+	return nil, false
 }

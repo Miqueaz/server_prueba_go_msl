@@ -2,17 +2,48 @@ package helpers
 
 import (
 	"fmt"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // Función para convertir BSON a `map[string]interface{}` y manejar `primitive.ObjectID`
-func ConvertBsonToMap(doc bson.M) map[string]interface{} {
-	result := make(map[string]interface{})
-	for key, value := range doc {
-		result[key] = fmt.Sprintf("%v", value)
+func ConvertBsonToMap(doc bson.M) map[string]any {
+	return convertBsonValue(doc).(map[string]any)
+}
+
+func convertBsonValue(value any) any {
+	switch v := value.(type) {
+	case primitive.ObjectID:
+		return v.Hex()
+	case primitive.DateTime:
+		// Convertir a string en formato RFC3339 compatible con proto
+		return v.Time().Format(time.RFC3339)
+	case primitive.Timestamp:
+		// Devolver el timestamp como entero (o combínalo como string si lo prefieres)
+		return int64(v.T)
+	case primitive.A:
+		arr := make([]interface{}, len(v))
+		for i, item := range v {
+			arr[i] = convertBsonValue(item)
+		}
+		return arr
+	case bson.M:
+		mapped := make(map[string]interface{})
+		for k, val := range v {
+			mapped[k] = convertBsonValue(val)
+		}
+		return mapped
+	case map[string]interface{}:
+		mapped := make(map[string]interface{})
+		for k, val := range v {
+			mapped[k] = convertBsonValue(val)
+		}
+		return mapped
+	default:
+		return v
 	}
-	return result
 }
 
 func ConvertMapToStrings(input map[string]interface{}) (map[string]string, error) {

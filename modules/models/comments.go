@@ -2,16 +2,11 @@ package models
 
 import (
 	base "server/core/base"
-	"server/modules/handler"
 	"time"
 )
 
-// Nombre de la colección en la base de datos
-var nombre string = "Comentarios"
-var collectionName string = "comments"
-
 // Comment representa un comentario en la base de datos
-type commentModel struct {
+type Comment struct {
 	ID      string    `bson:"_id" json:"_id"`           // ID del comentario
 	Name    string    `bson:"name" json:"name"`         // Nombre del autor
 	Email   string    `bson:"email" json:"email"`       // Email del autor
@@ -21,5 +16,5 @@ type commentModel struct {
 }
 
 func init() {
-	handler.CommentControllerInit(*base.NewModel(nombre, collectionName, commentModel{}))
+	base.NewModel[Comment]("Comentarios", "comments")
 }
