@@ -2,7 +2,7 @@ package base_controller
 
 import (
 	"fmt"
-	"main/connection/db"
+	"main/modules/core/handler/client"
 	models "main/pkg/base/models"
 	"net/http"
 )
@@ -10,56 +10,38 @@ import (
 // Métodos CRUD implementados por BaseModelController
 
 // Método Read con soporte de hooks
-func (s *Controller[T]) read(filter map[string]any, config map[string]int) ([]map[string]any, error) {
-
-	// Ejecutar hooks antes del Read
-	if err := s.ExecuteHooks(s.BeforeRead, filter); err != nil {
-		return nil, err
+func (s *Controller[T]) Read(res http.ResponseWriter, req *http.Request) {
+	ctx, err := client.Init(res, req)
+	if err != nil {
+		ctx.InternalServerError(err)
+		return
 	}
 
-	// Simula llamada a la base de datos
-	data, err := s.FindClenear(db.FindDocuments(
-		filter,
-		s.Model.CollectionName,
-		int64(config["page"]),
-		int64(config["pageSize"]),
-	))
+	data, _ := s.Service.Methods.Read(nil, nil)
 
-	// Ejecutar hooks después del Read
-	if err == nil {
-		_ = s.ExecuteHooks(s.AfterRead, filter) // Ignoramos errores de hooks posteriores
+	// Convert []map[string]any to []any
+	result := make([]any, len(data))
+	for i, v := range data {
+		result[i] = v
 	}
 
-	return data, err
+	ctx.Success("Users fetched successfully", result)
 }
 
-func (s *Controller[T]) Read(res http.ResponseWriter, req *http.Request) {}
-
 // Insert: Insertar datos en la base de datos
-func (s *Controller[T]) Insert(data map[string]interface{}) error {
-	fmt.Printf("Insertando datos en la colección '%s': %v\n", data)
-	// return db.InsertDocument(data, b.Model.CollectionName) // Implementación real de inserción
-	return nil
+func (s *Controller[T]) Insert(res http.ResponseWriter, req *http.Request) {
 }
 
 // Update: Actualizar datos en la base de datos
-func (s *Controller[T]) Update(filter map[string]interface{}, data map[string]interface{}) error {
-	fmt.Printf("Actualizando datos de la colección '%s' con el filtro: %v y los datos: %v\n", filter, data)
-	// return db.UpdateDocument(filter, data, b.Model.CollectionName) // Implementación real de actualización
-	return nil
-
+func (s *Controller[T]) Update(res http.ResponseWriter, req *http.Request) {
 }
 
 // Delete: Eliminar datos de la base de datos
-func (s *Controller[T]) Delete(filter map[string]interface{}) error {
-	fmt.Printf("Eliminando datos de la colección '%s' con el filtro: %v\n", filter)
-	// return db.DeleteDocument(filter, b.Model.CollectionName) // Implementación real de eliminación
-	return nil
-
+func (s *Controller[T]) Delete(res http.ResponseWriter, req *http.Request) {
 }
 
 // GetModel: Obtener el modelo asociado al controlador
 func (s *Controller[T]) GetModel() models.Model[T] {
-	fmt.Printf("Obteniendo el modelo asociado al controlador: %s\n", s.Model.Name)
-	return s.Model // Retorna el modelo asociado al controlador
+	fmt.Printf("Obteniendo el modelo asociado al controlador: %s\n", s.Service.Model.Name)
+	return s.Service.Model
 }

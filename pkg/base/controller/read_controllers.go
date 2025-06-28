@@ -3,7 +3,7 @@ package base_controller
 import (
 	"log"
 	helpers "main/pkg/base/helpers"
-	models "main/pkg/base/models"
+	base_service "main/pkg/base/service"
 )
 
 // Obtener un modelo usando type assertion
@@ -24,8 +24,8 @@ func GetController[T any]() (*Controller[T], bool) {
 // Generador de controlladores
 func GeneratorController[T any]() (*Controller[T], bool) {
 	log.Print("Generando controllador")
-	if model, ok := models.GetModel[T](); ok {
-		newController := NewController(*model, nil)
+	if service, ok := base_service.GetService[T](); ok {
+		newController := NewController(*service)
 		return newController, true
 	}
 

@@ -1,27 +1,25 @@
 package base_controller
 
 import (
-	models "main/pkg/base/models"
-	"main/pkg/hooks"
+	base_models "main/pkg/base/models"
+	base_service "main/pkg/base/service"
 	"net/http"
 	"sync"
 )
 
 // Controller agrupa un modelo con sus métodos
 type Controller[T any] struct {
-	models.Model[T]
+	base_service.Service[T]
 	Methods[T]
-	hooks.Hookable
-	hooks.Cleaners
 }
 
 // Methods define los métodos CRUD
 type Methods[T any] interface {
 	Read(res http.ResponseWriter, req *http.Request)
-	Insert(data T) error
-	Update(filter map[string]any, data T) error
-	Delete(filter map[string]any) error
-	GetModel() models.Model[T]
+	Insert(res http.ResponseWriter, req *http.Request)
+	Update(res http.ResponseWriter, req *http.Request)
+	Delete(res http.ResponseWriter, req *http.Request)
+	GetModel() base_models.Model[T]
 }
 
 // Mapa global de modelos (uso de sync.Map para concurrencia y tipos mixtos)
