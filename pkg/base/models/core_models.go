@@ -1,12 +1,16 @@
 package base_models
 
-import "sync"
+import (
+	query_postgres "main/pkg/postgres"
+	"sync"
+)
 
 // Modelo genérico
 type Model[T any] struct {
-	Name           string `json:"name"`
-	CollectionName string `json:"collectionName"`
-	Structure      T      `json:"structure"`
+	Name           string
+	CollectionName string
+	Structure      T
+	Find           query_postgres.QueryBuilder[T]
 }
 
 // Mapa global de modelos (uso de sync.Map para concurrencia y tipos mixtos)

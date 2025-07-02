@@ -1,8 +1,8 @@
 package user_model
 
 type Struct struct {
-	ID       string `bson:"_id"`
-	Username string `bson:"username"`
-	Email    string `bson:"email"`
-	Password string `bson:"password"`
+	ID       uint   `gorm:"primaryKey;autoIncrement"`
+	Username string `gorm:"unique;not null"`
+	Email    string `gorm:"unique;not null"`
+	Password string `gorm:"not null"`
 }

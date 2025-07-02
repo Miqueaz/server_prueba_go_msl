@@ -1,15 +1,15 @@
 package base_service
 
 import (
+	"context"
 	"fmt"
-	"main/connection/db"
 	models "main/pkg/base/models"
 )
 
 // Métodos CRUD implementados por BaseModelController
 
 // Método Read con soporte de hooks
-func (s *Service[T]) Read(filter map[string]any, config map[string]int) ([]map[string]any, error) {
+func (s *Service[T]) Read(filter map[string]any, config map[string]int) ([]T, error) {
 
 	// Ejecutar hooks antes del Read
 	if err := s.ExecuteHooks(s.BeforeRead, filter); err != nil {
@@ -17,15 +17,19 @@ func (s *Service[T]) Read(filter map[string]any, config map[string]int) ([]map[s
 	}
 
 	// Simula llamada a la base de datos
-	data, err := s.FindClenear(db.FindDocuments(
-		filter,
-		s.Model.CollectionName,
-		int64(config["page"]),
-		int64(config["pageSize"]),
-	))
+	// data, err := s.FindClenear(db.FindDocuments(
+	// 	filter,
+	// 	s.Model.CollectionName,
+	// 	int64(config["page"]),
+	// 	int64(config["pageSize"]),
+	// ))
+
+	print(s.Model.Name)
+	data, err := s.Model.Find.Exec(context.Background())
 
 	// Ejecutar hooks después del Read
 	if err == nil {
+		print("NO hay data")
 		_ = s.ExecuteHooks(s.AfterRead, filter) // Ignoramos errores de hooks posteriores
 	}
 

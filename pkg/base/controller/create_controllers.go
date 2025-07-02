@@ -6,8 +6,14 @@ import (
 )
 
 // Crear un nuevo controlador
-func NewController[T any](s base_service.Service[T]) *Controller[T] {
-	controller := &Controller[T]{Service: s}
+func NewController[T any](s base_service.Service[T], m Methods[T]) *Controller[T] {
+	if m == nil {
+		controller := &Controller[T]{Service: s, Methods: &Controller[T]{}}
+		SaveController(controller)
+		return controller
+	}
+
+	controller := &Controller[T]{Service: s, Methods: m}
 	SaveController(controller)
 	return controller
 }

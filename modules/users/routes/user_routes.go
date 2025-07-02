@@ -8,5 +8,6 @@ import (
 
 func Init() {
 	var r = router.Router()
+	user_core.Model.Find.Exec(nil)
 	r.GET("/users", http.HandlerFunc(user_core.Controller.Read))
 }

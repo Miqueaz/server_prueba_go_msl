@@ -16,7 +16,7 @@ type Service[T any] struct {
 
 // Methods define los métodos CRUD
 type Methods[T any] interface {
-	Read(filter map[string]any, config map[string]int) ([]map[string]any, error)
+	Read(filter map[string]any, config map[string]int) ([]T, error)
 	Insert(data T) error
 	Update(filter map[string]any, data T) error
 	Delete(filter map[string]any) error

@@ -1,6 +1,7 @@
 package base_controller
 
 import (
+	"errors"
 	"fmt"
 	"main/modules/core/handler/client"
 	models "main/pkg/base/models"
@@ -17,7 +18,12 @@ func (s *Controller[T]) Read(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	data, _ := s.Service.Methods.Read(nil, nil)
+	data, err := s.Service.Methods.Read(nil, nil)
+
+	if data == nil {
+		err := errors.New("No data found")
+		ctx.NotFound(err)
+	}
 
 	// Convert []map[string]any to []any
 	result := make([]any, len(data))

@@ -16,16 +16,17 @@ import (
 
 // Crear un nuevo controlador con métodos personalizados
 func NewServices[T any](model models.Model[T], methods Methods[T]) *Service[T] {
-	var controller *Service[T]
+	var service *Service[T]
 
 	if methods != nil {
-		controller = &Service[T]{Model: model, Methods: methods}
+		service = &Service[T]{Model: model, Methods: methods}
+		SaveService(service)
+		return service
 	} else {
-		controller = &Service[T]{Model: model}
+		service = &Service[T]{Model: model, Methods: &Service[T]{}}
+		SaveService(service)
+		return service
 	}
-
-	SaveService(controller)
-	return controller
 }
 
 // Guardar un controlador en el mapa global

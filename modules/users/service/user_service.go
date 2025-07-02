@@ -10,11 +10,11 @@ type UserService struct {
 }
 
 // Read: Simula la lectura de datos de un modelo de usuario
-func (u *UserService) Read(filter map[string]any, config map[string]int) ([]map[string]any, error) {
+func (u *UserService) Read(filter map[string]any, config map[string]int) ([]user_model.Struct, error) {
 	data := []string{"Alice", "Bob"}
-	result := make([]map[string]any, len(data))
+	result := make([]user_model.Struct, len(data))
 	for i, name := range data {
-		result[i] = map[string]any{"name": name}
+		result[i] = user_model.Struct{Username: name}
 	}
 	return result, nil
 }
