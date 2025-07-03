@@ -1,10 +1,10 @@
 package base_controller
 
 import (
-	base_models "main/pkg/base/models"
 	base_service "main/pkg/base/service"
-	"net/http"
 	"sync"
+
+	"github.com/gin-gonic/gin"
 )
 
 // Controller agrupa un modelo con sus métodos
@@ -15,11 +15,10 @@ type Controller[T any] struct {
 
 // Methods define los métodos CRUD
 type Methods[T any] interface {
-	Read(res http.ResponseWriter, req *http.Request)
-	Insert(res http.ResponseWriter, req *http.Request)
-	Update(res http.ResponseWriter, req *http.Request)
-	Delete(res http.ResponseWriter, req *http.Request)
-	GetModel() base_models.Model[T]
+	Read(gin *gin.Context)
+	Insert(gin *gin.Context)
+	Update(gin *gin.Context)
+	Delete(gin *gin.Context)
 }
 
 // Mapa global de modelos (uso de sync.Map para concurrencia y tipos mixtos)

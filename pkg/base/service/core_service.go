@@ -14,13 +14,16 @@ type Service[T any] struct {
 	hooks.Cleaners
 }
 
+type Default struct {
+	Service[any]
+}
+
 // Methods define los métodos CRUD
 type Methods[T any] interface {
 	Read(filter map[string]any, config map[string]int) ([]T, error)
 	Insert(data T) error
 	Update(filter map[string]any, data T) error
 	Delete(filter map[string]any) error
-	GetModel() models.Model[T]
 }
 
 // Mapa global de modelos (uso de sync.Map para concurrencia y tipos mixtos)

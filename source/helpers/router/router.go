@@ -1,14 +1,18 @@
 package router
 
 import (
-	"main/modules/core/handler/client"
 	"main/pkg/base/router"
+	"main/pkg/client"
 	"net/http"
 
 	"github.com/rs/cors"
 )
 
 var rout = router.Router()
+
+func NewRoute(path string) *router.GroupRouter {
+	return rout.Group(path)
+}
 
 func Router() *router.AppRouter {
 	return rout

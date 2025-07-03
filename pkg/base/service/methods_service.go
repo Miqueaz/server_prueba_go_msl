@@ -3,10 +3,7 @@ package base_service
 import (
 	"context"
 	"fmt"
-	models "main/pkg/base/models"
 )
-
-// Métodos CRUD implementados por BaseModelController
 
 // Método Read con soporte de hooks
 func (s *Service[T]) Read(filter map[string]any, config map[string]int) ([]T, error) {
@@ -15,14 +12,6 @@ func (s *Service[T]) Read(filter map[string]any, config map[string]int) ([]T, er
 	if err := s.ExecuteHooks(s.BeforeRead, filter); err != nil {
 		return nil, err
 	}
-
-	// Simula llamada a la base de datos
-	// data, err := s.FindClenear(db.FindDocuments(
-	// 	filter,
-	// 	s.Model.CollectionName,
-	// 	int64(config["page"]),
-	// 	int64(config["pageSize"]),
-	// ))
 
 	print(s.Model.Name)
 	data, err := s.Model.Find.Exec(context.Background())
@@ -57,10 +46,4 @@ func (s *Service[T]) Delete(filter map[string]interface{}) error {
 	// return db.DeleteDocument(filter, b.Model.CollectionName) // Implementación real de eliminación
 	return nil
 
-}
-
-// GetModel: Obtener el modelo asociado al controlador
-func (s *Service[T]) GetModel() models.Model[T] {
-	fmt.Printf("Obteniendo el modelo asociado al controlador: %s\n", s.Model.Name)
-	return s.Model // Retorna el modelo asociado al controlador
 }

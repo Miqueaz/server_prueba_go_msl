@@ -2,11 +2,9 @@ package main
 
 import (
 	"fmt"
-	"log"
 	config "main/config"
-	modules "main/modules/core/cmd"
-	router "main/modules/core/router"
-	"net/http"
+	"main/source/helpers/router"
+	modules "main/source/modules/core"
 )
 
 func main() {
@@ -18,5 +16,5 @@ func main() {
 
 func Execute() {
 	r := router.Router()
-	log.Fatal(http.ListenAndServe(":3000", r.Router))
+	r.Execute(":8080")
 }

@@ -1,14 +1,8 @@
-package cmd
-
-import "main/modules/users"
+package modules
 
 var modules = make([]func(), 0)
 
-func init() {
-	New(users.Init)
-}
-
-func New(fn func()) {
+func NewModule(fn func()) {
 
 	modules = append(modules, fn)
 }

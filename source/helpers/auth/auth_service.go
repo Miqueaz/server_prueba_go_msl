@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	database "main/connection/db/mongo"
-	"main/modules/core/utils"
+	"main/pkg/crypto"
 	key "main/security/token"
 	"time"
 )
@@ -32,7 +32,7 @@ func (s *AuthService) signIn(ctx context.Context, username string, email string,
 		Password: "$2a$10$EIX/5z1Zb75",
 	}
 
-	if err := utils.CheckPassword(user.Password, password); err != nil {
+	if err := crypto.CheckPassword(user.Password, password); err != nil {
 		return "", errors.New("invalid password")
 	}
 
@@ -48,7 +48,7 @@ func (a *AuthService) signUp(ctx context.Context, username string, email string,
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	hashedPassword, err := utils.EncryptPassword(password)
+	hashedPassword, err := crypto.EncryptPassword(password)
 	if err != nil {
 		return "", err
 	}

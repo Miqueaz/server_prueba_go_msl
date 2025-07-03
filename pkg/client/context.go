@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"io"
-	"main/modules/core/middleware"
 	"net/http"
 )
 
@@ -31,10 +30,10 @@ func Init(response http.ResponseWriter, request *http.Request) (*HttpContext, er
 	}, nil
 }
 
-func GetDTO[T any](ctx context.Context) (T, error) {
+func GetDTO[T any](ctx context.Context, key string) (T, error) {
 	var dtoStruct T
 
-	val := ctx.Value(middleware.DtoKey)
+	val := ctx.Value(key)
 	if val == nil {
 		return dtoStruct, errors.New("no dto in context")
 	}

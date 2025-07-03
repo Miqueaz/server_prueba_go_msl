@@ -1,7 +1,8 @@
 package auth
 
 import (
-	"main/modules/core/handler/client"
+	"main/pkg/client"
+	middleware "main/source/helpers/middlewares"
 	"net/http"
 )
 
@@ -23,7 +24,7 @@ func SignIn(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	dto, err := client.GetDTO[*AuthDTO](req.Context())
+	dto, err := client.GetDTO[*AuthDTO](req.Context(), string(middleware.DtoKey))
 	if err != nil {
 		_ = ctx.Error("Invalid validated data", err)
 		return
@@ -47,7 +48,7 @@ func SignUp(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	dto, err := client.GetDTO[*AuthDTO](req.Context())
+	dto, err := client.GetDTO[*AuthDTO](req.Context(), string(middleware.DtoKey))
 	if err != nil {
 		_ = ctx.InternalServerError(err)
 		return
