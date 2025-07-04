@@ -1,8 +1,8 @@
 package base_service
 
 import (
+	"main/pkg/base/hooks"
 	models "main/pkg/base/models"
-	"main/pkg/hooks"
 	"sync"
 )
 

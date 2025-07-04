@@ -16,30 +16,6 @@ func NewQueryBuilder[T any](db *sqlx.DB, table string) QueryBuilder[T] {
 	}
 }
 
-// Where adds a condition
-func (qb *QueryBuilder[T]) Where(field, op string, val interface{}) *QueryBuilder[T] {
-	qb.conditions = append(qb.conditions, condition{field, op, val})
-	return qb
-}
-
-// Limit sets a limit
-func (qb *QueryBuilder[T]) Limit(n int) *QueryBuilder[T] {
-	qb.limit = n
-	return qb
-}
-
-// Offset sets an offset
-func (qb *QueryBuilder[T]) Offset(n int) *QueryBuilder[T] {
-	qb.offset = n
-	return qb
-}
-
-// OrderBy sets order
-func (qb *QueryBuilder[T]) OrderBy(clause string) *QueryBuilder[T] {
-	qb.orderBy = clause
-	return qb
-}
-
 // Exec executes the query and returns []T
 func (qb *QueryBuilder[T]) Exec(ctx context.Context) ([]T, error) {
 	var args []interface{}
@@ -73,4 +49,18 @@ func (qb *QueryBuilder[T]) Exec(ctx context.Context) ([]T, error) {
 	}
 
 	return results, err
+}
+
+// buildWhere builds the WHERE clause and args
+func (qb *QueryBuilder[T]) buildWhere() (string, []interface{}) {
+	var parts []string
+	var args []interface{}
+	for i, cond := range qb.conditions {
+		parts = append(parts, fmt.Sprintf("%s %s $%d", cond.Field, cond.Op, i+1))
+		args = append(args, cond.Val)
+	}
+	if len(parts) == 0 {
+		return "", nil
+	}
+	return " WHERE " + strings.Join(parts, " AND "), args
 }

@@ -3,7 +3,6 @@ package auth
 import (
 	"context"
 	"errors"
-	database "main/connection/db/mongo"
 	"main/pkg/crypto"
 	key "main/security/token"
 	user_model "main/source/modules/users/models"
@@ -55,11 +54,6 @@ func (a *AuthService) signUp(ctx context.Context, username string, email string,
 		Rol:             1, // Assuming 1 is the default role for new users
 	})
 
-	if err != nil {
-		return "", err
-	}
-
-	err = database.CreateIndex("users", "email", true)
 	if err != nil {
 		return "", err
 	}

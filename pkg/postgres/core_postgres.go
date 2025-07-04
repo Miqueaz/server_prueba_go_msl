@@ -18,3 +18,12 @@ type QueryBuilder[T any] struct {
 	limit      int
 	offset     int
 }
+
+type inser struct {
+}
+
+type delete struct {
+}
+
+type update struct {
+}
