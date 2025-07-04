@@ -1,12 +1,19 @@
 package user_model
 
-import base_models "main/pkg/base/models"
+import (
+	base_models "main/pkg/base/models"
+)
 
 type UserStruct struct {
-	ID       uint   `gorm:"primaryKey;autoIncrement"`
-	Username string `gorm:"unique;not null"`
-	Email    string `gorm:"unique;not null"`
-	Password string `gorm:"not null"`
+	ID              int     `db:"id"`
+	PrimerNombre    string  `db:"primernombre"`
+	SegundoNombre   *string `db:"segundonombre"`
+	PrimerApellido  string  `db:"primerapellido"`
+	SegundoApellido *string `db:"segundoapellido"`
+	Matricula       string  `db:"matricula"`
+	Correo          string  `db:"correo"`
+	Contrasena      string  `db:"contrasena"`
+	Rol             int     `db:"rol"`
 }
 
-var Model = base_models.NewModel[UserStruct]("user", "users")
+var Model = base_models.NewModel[UserStruct]("user", "usuarios")

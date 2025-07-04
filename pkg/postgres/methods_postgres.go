@@ -2,6 +2,8 @@ package query_postgres
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -40,30 +42,35 @@ func (qb *QueryBuilder[T]) OrderBy(clause string) *QueryBuilder[T] {
 
 // Exec executes the query and returns []T
 func (qb *QueryBuilder[T]) Exec(ctx context.Context) ([]T, error) {
-	print(qb.table)
-	// var args []interface{}
-	// var whereClauses []string
+	var args []interface{}
+	var whereClauses []string
 
-	// for i, cond := range qb.conditions {
-	// 	whereClauses = append(whereClauses, fmt.Sprintf("%s %s $%d", cond.Field, cond.Op, i+1))
-	// 	args = append(args, cond.Val)
-	// }
+	for i, cond := range qb.conditions {
+		whereClauses = append(whereClauses, fmt.Sprintf("%s %s $%d", cond.Field, cond.Op, i+1))
+		args = append(args, cond.Val)
+	}
 
-	// query := fmt.Sprintf("SELECT * FROM %s", qb.table)
-	// if len(whereClauses) > 0 {
-	// 	query += " WHERE " + strings.Join(whereClauses, " AND ")
-	// }
-	// if qb.orderBy != "" {
-	// 	query += " ORDER BY " + qb.orderBy
-	// }
-	// if qb.limit > 0 {
-	// 	query += fmt.Sprintf(" LIMIT %d", qb.limit)
-	// }
-	// if qb.offset > 0 {
-	// 	query += fmt.Sprintf(" OFFSET %d", qb.offset)
-	// }
+	query := fmt.Sprintf("SELECT * FROM %s", qb.table)
+	if len(whereClauses) > 0 {
+		query += " WHERE " + strings.Join(whereClauses, " AND ")
+	}
+	if qb.orderBy != "" {
+		query += " ORDER BY " + qb.orderBy
+	}
+	if qb.limit > 0 {
+		query += fmt.Sprintf(" LIMIT %d", qb.limit)
+	}
+	if qb.offset > 0 {
+		query += fmt.Sprintf(" OFFSET %d", qb.offset)
+	}
 
 	var results []T
-	// err := qb.db.SelectContext(ctx, &results, query, args...)
-	return results, nil
+	err := qb.db.SelectContext(ctx, &results, query, args...)
+	println("Executing query: ", query, " with args: ", args)
+	if err != nil {
+		println("Error executing query:", err)
+		return nil, err
+	}
+
+	return results, err
 }

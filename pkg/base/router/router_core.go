@@ -7,7 +7,7 @@ type GroupRouter struct {
 }
 
 type AppRouter struct {
-	Router *gin.Engine
+	*gin.Engine
 }
 
 type RouterInterface interface {

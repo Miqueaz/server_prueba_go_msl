@@ -6,37 +6,28 @@ import (
 	database "main/connection/db/mongo"
 	"main/pkg/crypto"
 	key "main/security/token"
+	user_model "main/source/modules/users/models"
+	user_service "main/source/modules/users/services"
 	"time"
 )
 
 type AuthService struct{}
 
-func (s *AuthService) signIn(ctx context.Context, username string, email string, password string) (string, error) {
+func (s *AuthService) signIn(ctx context.Context, matricula string, email string, password string) (string, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	// user, err := reposditory.FindUser(ctx, username, email)
-	// if err != nil {
-	// 	return "", err
-	// }
-
-	user := struct {
-		ID       string
-		Username string
-		Email    string
-		Password string
-	}{
-		ID:       "exampleUserID",
-		Username: username,
-		Email:    email,
-		Password: "$2a$10$EIX/5z1Zb75",
+	users, err := user_model.Model.Find.Where("matricula", "=", matricula).Exec(ctx)
+	user := users[0]
+	if err != nil {
+		return "", err
 	}
 
-	if err := crypto.CheckPassword(user.Password, password); err != nil {
+	if err := crypto.CheckPassword(user.Contrasena, password); err != nil {
 		return "", errors.New("invalid password")
 	}
 
-	token, err := key.GenerateJWT(user.ID)
+	token, err := key.GenerateJWT(user.Matricula)
 	if err != nil {
 		return "", err
 	}
@@ -53,18 +44,16 @@ func (a *AuthService) signUp(ctx context.Context, username string, email string,
 		return "", err
 	}
 
-	// user, err := repository.InsertUser(ctx, username, email, hashedPassword)
-	user := struct {
-		ID       string
-		Username string
-		Email    string
-		Password string
-	}{
-		ID:       "newUserID",
-		Username: username,
-		Email:    email,
-		Password: hashedPassword,
-	}
+	user, err := user_service.Service.Insert(user_model.UserStruct{
+		PrimerNombre:    username,
+		SegundoNombre:   nil,
+		PrimerApellido:  username,
+		SegundoApellido: nil,
+		Matricula:       username,
+		Correo:          email,
+		Contrasena:      hashedPassword,
+		Rol:             1, // Assuming 1 is the default role for new users
+	})
 
 	if err != nil {
 		return "", err
@@ -75,5 +64,5 @@ func (a *AuthService) signUp(ctx context.Context, username string, email string,
 		return "", err
 	}
 
-	return user.ID, nil
+	return user.Matricula, nil
 }

@@ -12,7 +12,7 @@ var DB *sql.DB
 
 func InitPostgres() {
 	var err error
-	connStr := "host=172.17.4.128 port=5432 user=secureuser password=DarthMonkus117 dbname=droply sslmode=disable"
+	connStr := "host=172.18.2.55 port=5432 user=secureuser password=DarthMonkus117 dbname=droply sslmode=disable"
 	DB, err = sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatalf("Error al conectar a PostgreSQL: %v", err)

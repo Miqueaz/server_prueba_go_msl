@@ -13,7 +13,6 @@ func (s *Service[T]) Read(filter map[string]any, config map[string]int) ([]T, er
 		return nil, err
 	}
 
-	print(s.Model.Name)
 	data, err := s.Model.Find.Exec(context.Background())
 
 	// Ejecutar hooks después del Read
@@ -26,10 +25,10 @@ func (s *Service[T]) Read(filter map[string]any, config map[string]int) ([]T, er
 }
 
 // Insert: Insertar datos en la base de datos
-func (s *Service[T]) Insert(data T) error {
+func (s *Service[T]) Insert(data T) (T, error) {
 	fmt.Printf("Insertando datos en la colección '%s': %v\n", data)
 	// return db.InsertDocument(data, b.Model.CollectionName) // Implementación real de inserción
-	return nil
+	return data, nil
 }
 
 // Update: Actualizar datos en la base de datos

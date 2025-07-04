@@ -9,42 +9,42 @@ import (
 func Router() *AppRouter {
 	// Usamos gin.Default() para crear el enrutador con middleware por defecto (como el logger y recovery)
 	r := gin.Default()
-	return &AppRouter{Router: r}
+	return &AppRouter{r}
 }
 
 func (ar *AppRouter) Use(mw ...gin.HandlerFunc) {
 	// Añadimos el middleware a la lista de middlewares
-	ar.Router.Use(mw...)
+	ar.Engine.Use(mw...)
 }
 
 func (ar *AppRouter) GET(path string, fn any, mw ...gin.HandlerFunc) {
 	// En gin, las rutas se definen con métodos como GET, POST, etc.
-	ar.Router.GET(path, append(mw, base_controller.MakeController(fn))...)
+	ar.Engine.GET(path, append(mw, base_controller.MakeController(fn))...)
 }
 
 func (ar *AppRouter) POST(path string, fn any, mw ...gin.HandlerFunc) {
 	// En gin, las rutas se definen con métodos como GET, POST, etc.
-	ar.Router.POST(path, append(mw, base_controller.MakeController(fn))...)
+	ar.Engine.POST(path, append(mw, base_controller.MakeController(fn))...)
 }
 
 func (ar *AppRouter) PUT(path string, fn any, mw ...gin.HandlerFunc) {
 	// En gin, las rutas se definen con métodos como GET, POST, etc.
-	ar.Router.PUT(path, append(mw, base_controller.MakeController(fn))...)
+	ar.Engine.PUT(path, append(mw, base_controller.MakeController(fn))...)
 }
 
 func (ar *AppRouter) DELETE(path string, fn any, mw ...gin.HandlerFunc) {
 	// En gin, las rutas se definen con métodos como GET, POST, etc.
-	ar.Router.DELETE(path, append(mw, base_controller.MakeController(fn))...)
+	ar.Engine.DELETE(path, append(mw, base_controller.MakeController(fn))...)
 }
 
 func (ar *AppRouter) Execute(addr string) error {
 	// Inicia el servidor en la dirección especificada
-	return ar.Router.Run(addr)
+	return ar.Engine.Run(addr)
 }
 
 func (ar *AppRouter) Group(prefix string) *GroupRouter {
 	// Crea un nuevo grupo de rutas con un prefijo y middlewares específicos
-	group := ar.Router.Group(prefix)
+	group := ar.Engine.Group(prefix)
 	return &GroupRouter{Router: group}
 }
 

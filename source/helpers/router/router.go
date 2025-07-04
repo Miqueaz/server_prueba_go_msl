@@ -5,7 +5,7 @@ import (
 	"main/pkg/client"
 	"net/http"
 
-	"github.com/rs/cors"
+	"github.com/gin-contrib/cors"
 )
 
 var rout = router.Router()
@@ -20,16 +20,15 @@ func Router() *router.AppRouter {
 
 func init() {
 	rout.GET("/", func(w http.ResponseWriter, r *http.Request) {
-		handlerRouter(IndexRoute).ServeHTTP(w, r)
+		IndexRoute(w, r)
 	})
-}
+	rout.SetTrustedProxies([]string{"0.0.0.0/0"})
+	rout.Use(cors.New(cors.Config{
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{"GET", "POST", "PUT"},
+		AllowHeaders: []string{"Authorization", "Content-Type", "application/json"},
+	}))
 
-func handlerRouter(handler http.HandlerFunc) http.Handler {
-	return cors.New(cors.Options{
-		AllowedOrigins: []string{"*"},
-		AllowedMethods: []string{"GET", "POST", "PUT"},
-		AllowedHeaders: []string{"Authorization", "Content-Type", "application/json"},
-	}).Handler(handler)
 }
 
 func IndexRoute(res http.ResponseWriter, req *http.Request) {
