@@ -27,17 +27,15 @@ func (s *Service[T]) Read(filter map[string]any, config map[string]int) ([]T, er
 // Insert: Insertar datos en la base de datos
 func (s *Service[T]) Insert(data T) (T, error) {
 	fmt.Printf("Insertando datos en la colección '%s': %v\n", data)
-	// return db.InsertDocument(data, b.Model.CollectionName) // Implementación real de inserción
-	ctx := context.Background()
-	s.Model.Find.Insert(ctx, data)
-	return data, nil
+	result, err := s.Model.Insert(context.Background(), data)
+	return result, err
 }
 
 // Update: Actualizar datos en la base de datos
 func (s *Service[T]) Update(filter map[string]interface{}, data T) (T, error) {
 	fmt.Printf("Actualizando datos de la colección '%s' con el filtro: %v y los datos: %v\n", filter, data)
 	// return db.UpdateDocument(filter, data, b.Model.CollectionName) // Implementación real de actualización
-	_, err := s.Model.Find.UpdateByID(context.Background(), filter, data)
+	_, err := s.Model.UpdateByID(context.Background(), filter, data)
 	return data, err
 
 }
@@ -46,7 +44,7 @@ func (s *Service[T]) Update(filter map[string]interface{}, data T) (T, error) {
 func (s *Service[T]) Delete(filter map[string]interface{}) error {
 	fmt.Printf("Eliminando datos de la colección '%s' con el filtro: %v\n", filter)
 	// return db.DeleteDocument(filter, b.Model.CollectionName) // Implementación real de eliminación
-	_, err := s.Model.Find.DeleteByID(context.Background(), filter)
+	_, err := s.Model.DeleteByID(context.Background(), filter)
 	return err
 
 }

@@ -1,15 +1,14 @@
-package query_postgres
+package orm_sql
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"reflect"
 	"strings"
 )
 
 // Insert inserts a single record of type T into the table
-func (qb *QueryBuilder[T]) Insert(ctx context.Context, entity T) (sql.Result, error) {
+func (qb *QueryBuilder[T]) Insert(ctx context.Context, entity T) (T, error) {
 	// Use reflection to get field names and values
 	v := reflect.ValueOf(entity)
 	if v.Kind() == reflect.Pointer {
@@ -37,7 +36,12 @@ func (qb *QueryBuilder[T]) Insert(ctx context.Context, entity T) (sql.Result, er
 		strings.Join(cols, ", "),
 		strings.Join(placeholders, ", "),
 	)
-	return qb.db.NamedExecContext(ctx, query, data)
+
+	_, err := qb.db.NamedExecContext(ctx, query, data)
+
+	//Si la estructura T tiene un campo ID, obtenemos el ID insertado
+
+	return entity, err
 }
 
 // InsertMany inserts multiple records of type T into the table in a transaction

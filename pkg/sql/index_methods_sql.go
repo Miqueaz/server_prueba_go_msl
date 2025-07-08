@@ -1,4 +1,4 @@
-package query_postgres
+package orm_sql
 
 import (
 	"context"
@@ -17,7 +17,7 @@ func NewQueryBuilder[T any](db *sqlx.DB, table string) QueryBuilder[T] {
 }
 
 // Exec executes the query and returns []T
-func (qb *QueryBuilder[T]) Exec(ctx context.Context) ([]T, error) {
+func (qb *Read[T]) Exec(ctx context.Context) ([]T, error) {
 	var args []interface{}
 	var whereClauses []string
 

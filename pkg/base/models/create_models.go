@@ -4,7 +4,7 @@ import (
 	"log"
 	"main/connection/db/postgres"
 	helpers "main/pkg/base/helpers"
-	query_postgres "main/pkg/postgres"
+	query_postgres "main/pkg/sql"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -17,7 +17,7 @@ func NewModel[T any](name string, collectionName string) *Model[T] {
 		Name:           name,
 		CollectionName: collectionName,
 		Structure:      *new(T),
-		Find:           query_postgres.NewQueryBuilder[T](db, collectionName),
+		QueryBuilder:   query_postgres.NewQueryBuilder[T](db, collectionName),
 	}
 	helpers.SaveStructure(model, &models)
 

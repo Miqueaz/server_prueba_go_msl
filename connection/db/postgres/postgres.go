@@ -4,31 +4,27 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	ORM "main/pkg/sql"
+	"os"
 
 	_ "github.com/lib/pq"
 )
 
 var DB *sql.DB
 
-func InitPostgres() {
-	var err error
-	connStr := "host=172.18.2.55 port=5432 user=secureuser password=DarthMonkus117 dbname=droply sslmode=disable"
-	DB, err = sql.Open("postgres", connStr)
-	if err != nil {
-		log.Fatalf("Error al conectar a PostgreSQL: %v", err)
-	}
-
-	if err = DB.Ping(); err != nil {
-		log.Fatalf("No se pudo hacer ping a PostgreSQL: %v", err)
-	}
-
-	fmt.Println("✅ Conectado a PostgreSQL correctamente.")
-}
-
 func init() {
-	InitPostgres()
+	var err error
+	connection := ORM.Connection{
+		Host:     os.Getenv("HOST_DB_POSTGRES"),
+		Port:     os.Getenv("PORT_DB_POSTGRES"),
+		User:     os.Getenv("USER_DB_POSTGRES"),
+		Password: os.Getenv("PASSWORD_DB_POSTGRES"),
+		Database: os.Getenv("DATABASE_POSTGRES"),
+		SSLMode:  os.Getenv("SSLMODE_DB_POSTGRES"),
+	}
+	DB, err = ORM.InitPostgres(connection)
 	if DB == nil {
-		log.Fatal("Error: La conexión a la base de datos PostgreSQL no se ha inicializado.")
+		log.Fatal("Error: La conexión a la base de datos PostgreSQL no se ha inicializado." + err.Error())
 	}
 	fmt.Println("PostgreSQL está listo para usar.")
 }

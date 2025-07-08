@@ -1,5 +1,5 @@
 // update.go
-package query_postgres
+package orm_sql
 
 import (
 	"context"
