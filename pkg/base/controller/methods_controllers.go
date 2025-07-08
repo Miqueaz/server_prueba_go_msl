@@ -6,7 +6,6 @@ import (
 	"io"
 	"main/pkg/client"
 	"reflect"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -61,60 +60,56 @@ func MakeController(fn interface{}) gin.HandlerFunc {
 		panic("MakeController: expected a function")
 	}
 
-	// Retorna un handler de gin que ejecuta la función dinámica
 	return func(c *gin.Context) {
-		// Leemos el cuerpo de la solicitud
 		var bodyBytes []byte
 		if c.Request.Body != nil {
 			bodyBytes, _ = io.ReadAll(c.Request.Body)
 		}
 
-		// Preparamos los argumentos para la función
 		argsCount := fnType.NumIn()
 		args := make([]reflect.Value, argsCount)
 
-		// Procesamos los parámetros de la función
+		stringParamIndex := 0 // para mapear parámetros string en orden con c.Params
+
 		for i := 0; i < argsCount; i++ {
 			paramType := fnType.In(i)
 
-			// Si el parámetro es *gin.Context, lo pasamos directamente
+			// *gin.Context se pasa directo
 			if paramType == reflect.TypeOf((*gin.Context)(nil)) {
 				args[i] = reflect.ValueOf(c)
 				continue
 			}
 
-			// Si el parámetro es el cuerpo, lo deserializamos
-			paramPtr := reflect.New(paramType)
-
-			// Si hay datos en el cuerpo de la solicitud
-			if len(bodyBytes) > 0 {
-				if err := json.Unmarshal(bodyBytes, paramPtr.Interface()); err != nil {
-					c.JSON(400, gin.H{"error": "invalid request body: " + err.Error()})
-					return
-				}
-			}
-
-			args[i] = paramPtr.Elem()
-		}
-
-		// Si hay parámetros en la URL, los procesamos
-		if len(c.Params) > 0 {
-			for i := 0; i < argsCount; i++ {
-				paramType := fnType.In(i)
-				if paramType.Kind() == reflect.String {
-					paramName := strings.ToLower(fnType.In(i).Name())
-					paramValue := c.Param(paramName)
-					if paramValue != "" {
-						args[i] = reflect.ValueOf(paramValue)
+			// structs se llenan con json.Unmarshal del body
+			if paramType.Kind() == reflect.Struct {
+				paramPtr := reflect.New(paramType)
+				if len(bodyBytes) > 0 {
+					if err := json.Unmarshal(bodyBytes, paramPtr.Interface()); err != nil {
+						c.JSON(400, gin.H{"error": "invalid request body: " + err.Error()})
+						return
 					}
 				}
+				args[i] = paramPtr.Elem()
+				continue
 			}
+
+			// strings se asignan en orden desde parámetros de ruta
+			if paramType.Kind() == reflect.String {
+				if stringParamIndex < len(c.Params) {
+					args[i] = reflect.ValueOf(c.Params[stringParamIndex].Value)
+				} else {
+					args[i] = reflect.Zero(paramType)
+				}
+				stringParamIndex++
+				continue
+			}
+
+			// Para otros tipos no soportados, usar valor cero
+			args[i] = reflect.Zero(paramType)
 		}
 
-		// Llamamos a la función dinámica con los argumentos
 		results := fnVal.Call(args)
 
-		// Procesamos los resultados de la función
 		var resp interface{}
 		var fnErr error
 		switch len(results) {
@@ -130,13 +125,11 @@ func MakeController(fn interface{}) gin.HandlerFunc {
 			return
 		}
 
-		// Si hubo un error, lo manejamos
 		if fnErr != nil {
 			c.JSON(500, gin.H{"error": fnErr.Error()})
 			return
 		}
 
-		// Respondemos con JSON
 		c.JSON(200, resp)
 	}
 }

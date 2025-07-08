@@ -13,6 +13,10 @@ func NewQueryBuilder[T any](db *sqlx.DB, table string) QueryBuilder[T] {
 	return QueryBuilder[T]{
 		db:    db,
 		table: table,
+		Find: Read[T]{
+			table: table,
+			db:    db,
+		},
 	}
 }
 
@@ -42,11 +46,12 @@ func (qb *Read[T]) Exec(ctx context.Context) ([]T, error) {
 
 	var results []T
 	err := qb.db.SelectContext(ctx, &results, query, args...)
-	println("Executing query: ", query, " with args: ", args)
 	if err != nil {
 		println("Error executing query:", err)
 		return nil, err
 	}
+
+	qb.conditions = nil // Clear conditions after execution
 
 	return results, err
 }

@@ -6,6 +6,7 @@ import (
 	"log"
 	ORM "main/pkg/sql"
 	"os"
+	"strconv"
 
 	_ "github.com/lib/pq"
 )
@@ -14,9 +15,10 @@ var DB *sql.DB
 
 func init() {
 	var err error
+	port, err := strconv.Atoi(os.Getenv("PORT_DB_POSTGRES"))
 	connection := ORM.Connection{
 		Host:     os.Getenv("HOST_DB_POSTGRES"),
-		Port:     os.Getenv("PORT_DB_POSTGRES"),
+		Port:     port,
 		User:     os.Getenv("USER_DB_POSTGRES"),
 		Password: os.Getenv("PASSWORD_DB_POSTGRES"),
 		Database: os.Getenv("DATABASE_POSTGRES"),

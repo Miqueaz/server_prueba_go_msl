@@ -45,7 +45,8 @@ func (qb *QueryBuilder[T]) Update(ctx context.Context, entity T) (sql.Result, er
 }
 
 // UpdateByID updates a record by its `id` field based on non-zero values of entity
-func (qb *QueryBuilder[T]) UpdateByID(ctx context.Context, id interface{}, entity T) (sql.Result, error) {
+func (qb *QueryBuilder[T]) UpdateByID(ctx context.Context, id int, entity T) (T, error) {
 	qb.conditions = []condition{{Field: "id", Op: "=", Val: id}}
-	return qb.Update(ctx, entity)
+	_, err := qb.Update(ctx, entity)
+	return entity, err
 }

@@ -3,6 +3,7 @@ package base_service
 import (
 	"context"
 	"fmt"
+	"strconv"
 )
 
 // Método Read con soporte de hooks
@@ -32,19 +33,28 @@ func (s *Service[T]) Insert(data T) (T, error) {
 }
 
 // Update: Actualizar datos en la base de datos
-func (s *Service[T]) Update(filter map[string]interface{}, data T) (T, error) {
-	fmt.Printf("Actualizando datos de la colección '%s' con el filtro: %v y los datos: %v\n", filter, data)
+func (s *Service[T]) Update(idStr string, data T) (T, error) {
+	id, err := strconv.Atoi(idStr)
+	fmt.Printf("Actualizando datos de la colección '%s' con el filtro: %v y los datos: %v\n", id, data)
 	// return db.UpdateDocument(filter, data, b.Model.CollectionName) // Implementación real de actualización
-	_, err := s.Model.UpdateByID(context.Background(), filter, data)
+	data, err = s.Model.UpdateByID(context.Background(), id, data)
 	return data, err
 
 }
 
 // Delete: Eliminar datos de la base de datos
-func (s *Service[T]) Delete(filter map[string]interface{}) error {
-	fmt.Printf("Eliminando datos de la colección '%s' con el filtro: %v\n", filter)
+func (s *Service[T]) Delete(idStr string) error {
+	id, err := strconv.Atoi(idStr)
+	fmt.Printf("Eliminando datos de la colección '%s' con el filtro: %v\n", id)
 	// return db.DeleteDocument(filter, b.Model.CollectionName) // Implementación real de eliminación
-	_, err := s.Model.DeleteByID(context.Background(), filter)
+	_, err = s.Model.DeleteByID(context.Background(), id)
 	return err
 
+}
+
+func (s *Service[T]) ReadOne(idStr string) (T, error) {
+	// Implementation for reading user data
+	id, err := strconv.Atoi(idStr)
+	data, err := s.Model.Find.Where("ID", "=", id).Exec(context.Background())
+	return data[0], err
 }
