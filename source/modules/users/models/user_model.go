@@ -5,15 +5,15 @@ import (
 )
 
 type UserStruct struct {
-	ID              int     `db:"id"`
+	ID              int     `db:"id" sanitizer:"id" visible:"false"`
 	PrimerNombre    string  `db:"primernombre"`
 	SegundoNombre   *string `db:"segundonombre"`
 	PrimerApellido  string  `db:"primerapellido"`
 	SegundoApellido *string `db:"segundoapellido"`
 	Matricula       string  `db:"matricula"`
 	Correo          string  `db:"correo"`
-	Contrasena      string  `db:"contrasena"`
-	Rol             int     `db:"rol"`
+	Contrasena      string  `db:"contrasena" sanitizer:"contrasena" visible:"false"`
+	Rol             int     `db:"rol" sanitizer:"rol" visible:"false"`
 }
 
 var Model = base_models.NewModel[UserStruct]("user", "usuarios")

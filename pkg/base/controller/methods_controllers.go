@@ -69,12 +69,12 @@ func MakeController(fn interface{}) gin.HandlerFunc {
 		argsCount := fnType.NumIn()
 		args := make([]reflect.Value, argsCount)
 
-		stringParamIndex := 0 // para mapear parámetros string en orden con c.Params
+		stringParamIndex := 0 // Para mapear parámetros string en orden con c.Params
 
 		for i := 0; i < argsCount; i++ {
 			paramType := fnType.In(i)
 
-			// *gin.Context se pasa directo
+			// *gin.Context se pasa directamente
 			if paramType == reflect.TypeOf((*gin.Context)(nil)) {
 				args[i] = reflect.ValueOf(c)
 				continue
@@ -104,7 +104,27 @@ func MakeController(fn interface{}) gin.HandlerFunc {
 				continue
 			}
 
-			// Para otros tipos no soportados, usar valor cero
+			// Manejo de enteros, float64, etc.
+			if paramType.Kind() == reflect.Int {
+				if val, ok := c.Params.Get(stringParamIndex).Value.(string); ok {
+					if intValue, err := strconv.Atoi(val); err == nil {
+						args[i] = reflect.ValueOf(intValue)
+					}
+				}
+				continue
+			}
+
+			// Manejo de float64
+			if paramType.Kind() == reflect.Float64 {
+				if val, ok := c.Params.Get(stringParamIndex).Value.(string); ok {
+					if floatValue, err := strconv.ParseFloat(val, 64); err == nil {
+						args[i] = reflect.ValueOf(floatValue)
+					}
+				}
+				continue
+			}
+
+			// Si el tipo no es compatible, se asigna valor cero
 			args[i] = reflect.Zero(paramType)
 		}
 
@@ -133,3 +153,4 @@ func MakeController(fn interface{}) gin.HandlerFunc {
 		c.JSON(200, resp)
 	}
 }
+
