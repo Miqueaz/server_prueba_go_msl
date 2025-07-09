@@ -7,7 +7,6 @@ import (
 	modulos_rol_model "main/source/modules/modulosRol/model"
 )
 
-var Service = base_service.NewService[base_service.Default[modulos_rol_model.ModulosRolStruct]](*modulos_rol_model.Model)
 
 func Init() {
 	print("PermisosRol Module Initialized\n")
