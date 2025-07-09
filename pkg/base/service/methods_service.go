@@ -30,7 +30,6 @@ func (s *Service[T]) Read(filter map[string]any) ([]T, error) {
 
 	// Ejecutar hooks después del Read
 	if err == nil {
-		print("NO hay data")
 		_ = s.ExecuteHooks(s.AfterRead, filter) // Ignoramos errores de hooks posteriores
 	}
 
@@ -64,9 +63,8 @@ func (s *Service[T]) Delete(idStr string) error {
 
 }
 
-func (s *Service[T]) ReadOne(idStr string) (T, error) {
+func (s *Service[T]) ReadOne(id int) (T, error) {
 	// Implementation for reading user data
-	id, err := strconv.Atoi(idStr)
 	data, err := s.Model.Find.Where("ID", "=", id).Exec(context.Background())
 	return data[0], err
 }

@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	config "main/config"
+	modules "main/source/core"
 	"main/source/helpers/router"
-	modules "main/source/modules/core"
 )
 
 func main() {

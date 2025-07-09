@@ -14,8 +14,8 @@ type Service[T any] struct {
 	hooks.Cleaners
 }
 
-type Default struct {
-	Service[any]
+type Default[T any] struct {
+	Service[T]
 }
 
 // Methods define los métodos CRUD

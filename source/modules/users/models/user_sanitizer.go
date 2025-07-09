@@ -7,4 +7,5 @@ type UserSanitizer struct {
 	SegundoApellido *string
 	Matricula       string
 	Correo          string
+	Role            *string
 }
