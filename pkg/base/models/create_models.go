@@ -28,3 +28,17 @@ func NewModel[T any](name string, collectionName string) *Model[T] {
 
 	return nil
 }
+
+func (m *Model[T]) SetDB(db *sqlx.DB) {
+	m.QueryBuilder = query_postgres.NewQueryBuilder[T](db, m.CollectionName)
+}
+
+func SetDB(db *sqlx.DB) {
+	models.Range(func(_, value any) bool {
+		if model, ok := value.(interface{ SetDB(*sqlx.DB) }); ok {
+			model.SetDB(db)
+		}
+		return true
+	})
+	log.Println("Base de datos configurada para todos los modelos.")
+}

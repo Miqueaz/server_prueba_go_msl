@@ -6,6 +6,7 @@ import (
 	"io"
 	"main/pkg/client"
 	"reflect"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -68,64 +69,66 @@ func MakeController(fn interface{}) gin.HandlerFunc {
 
 		argsCount := fnType.NumIn()
 		args := make([]reflect.Value, argsCount)
-
-		stringParamIndex := 0 // Para mapear parámetros string en orden con c.Params
+		stringParamIndex := 0
 
 		for i := 0; i < argsCount; i++ {
 			paramType := fnType.In(i)
 
-			// *gin.Context se pasa directamente
 			if paramType == reflect.TypeOf((*gin.Context)(nil)) {
 				args[i] = reflect.ValueOf(c)
 				continue
 			}
 
-			// structs se llenan con json.Unmarshal del body
-			if paramType.Kind() == reflect.Struct {
+			switch paramType.Kind() {
+			case reflect.Struct:
 				paramPtr := reflect.New(paramType)
 				if len(bodyBytes) > 0 {
 					if err := json.Unmarshal(bodyBytes, paramPtr.Interface()); err != nil {
-						c.JSON(400, gin.H{"error": "invalid request body: " + err.Error()})
+						c.JSON(400, gin.H{"error": "invalid request body (struct): " + err.Error()})
 						return
 					}
 				}
 				args[i] = paramPtr.Elem()
-				continue
-			}
 
-			// strings se asignan en orden desde parámetros de ruta
-			if paramType.Kind() == reflect.String {
+			case reflect.Map:
+				paramPtr := reflect.New(paramType).Interface()
+				if len(bodyBytes) > 0 {
+					if err := json.Unmarshal(bodyBytes, paramPtr); err != nil {
+						c.JSON(400, gin.H{"error": "invalid request body (map): " + err.Error()})
+						return
+					}
+				}
+				args[i] = reflect.ValueOf(paramPtr).Elem()
+
+			case reflect.String:
 				if stringParamIndex < len(c.Params) {
 					args[i] = reflect.ValueOf(c.Params[stringParamIndex].Value)
 				} else {
 					args[i] = reflect.Zero(paramType)
 				}
 				stringParamIndex++
-				continue
-			}
 
-			// Manejo de enteros, float64, etc.
-			if paramType.Kind() == reflect.Int {
-				if val, ok := c.Params.Get(stringParamIndex).Value.(string); ok {
+			case reflect.Int:
+				if stringParamIndex < len(c.Params) {
+					val := c.Params[stringParamIndex].Value
 					if intValue, err := strconv.Atoi(val); err == nil {
 						args[i] = reflect.ValueOf(intValue)
 					}
 				}
-				continue
-			}
+				stringParamIndex++
 
-			// Manejo de float64
-			if paramType.Kind() == reflect.Float64 {
-				if val, ok := c.Params.Get(stringParamIndex).Value.(string); ok {
+			case reflect.Float64:
+				if stringParamIndex < len(c.Params) {
+					val := c.Params[stringParamIndex].Value
 					if floatValue, err := strconv.ParseFloat(val, 64); err == nil {
 						args[i] = reflect.ValueOf(floatValue)
 					}
 				}
-				continue
-			}
+				stringParamIndex++
 
-			// Si el tipo no es compatible, se asigna valor cero
-			args[i] = reflect.Zero(paramType)
+			default:
+				args[i] = reflect.Zero(paramType)
+			}
 		}
 
 		results := fnVal.Call(args)
@@ -149,8 +152,6 @@ func MakeController(fn interface{}) gin.HandlerFunc {
 			c.JSON(500, gin.H{"error": fnErr.Error()})
 			return
 		}
-
 		c.JSON(200, resp)
 	}
 }
-

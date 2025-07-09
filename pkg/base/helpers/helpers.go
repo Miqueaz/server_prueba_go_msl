@@ -57,3 +57,17 @@ func ConvertMapToStrings(input map[string]interface{}) (map[string]string, error
 	}
 	return result, nil
 }
+
+func NormalizarFiltros(input map[string]any) map[string][2]any {
+	normalizados := make(map[string][2]any)
+	for campo, valor := range input {
+		// Si ya viene en formato [op, valor]
+		if arr, ok := valor.([]any); ok && len(arr) == 2 {
+			normalizados[campo] = [2]any{arr[0], arr[1]}
+			continue
+		}
+		// Si viene como valor simple, agregamos "=" como operador
+		normalizados[campo] = [2]any{"=", valor}
+	}
+	return normalizados
+}

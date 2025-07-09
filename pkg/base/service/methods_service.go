@@ -2,19 +2,31 @@ package base_service
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
+	base_helpers "main/pkg/base/helpers"
 	"strconv"
 )
 
 // Método Read con soporte de hooks
-func (s *Service[T]) Read(filter map[string]any, config map[string]int) ([]T, error) {
+func (s *Service[T]) Read(filter map[string]any) ([]T, error) {
 
 	// Ejecutar hooks antes del Read
 	if err := s.ExecuteHooks(s.BeforeRead, filter); err != nil {
 		return nil, err
 	}
 
-	data, err := s.Model.Find.Exec(context.Background())
+	filtros := base_helpers.NormalizarFiltros(filter)
+
+	qb := s.Model.Find
+	for campo, cond := range filtros {
+		op := fmt.Sprintf("%v", cond[0])
+		val := cond[1]
+		qb = *qb.Where(campo, op, val)
+	}
+
+	data, err := qb.Exec(context.Background())
 
 	// Ejecutar hooks después del Read
 	if err == nil {
@@ -57,4 +69,27 @@ func (s *Service[T]) ReadOne(idStr string) (T, error) {
 	id, err := strconv.Atoi(idStr)
 	data, err := s.Model.Find.Where("ID", "=", id).Exec(context.Background())
 	return data[0], err
+}
+
+func Sanitizar[S any, E any](data E) (S, error) {
+	// Inicializar un valor vacío de tipo S
+	var sanitized S
+
+	// Convertir los datos a JSON para sanitización (por ejemplo, eliminando valores peligrosos)
+	sanitizedData, err := json.Marshal(data)
+	if err != nil {
+		return sanitized, errors.New("failed to sanitize data: " + err.Error())
+	}
+
+	// En este punto, podrías modificar o verificar los datos en sanitizedData
+	// Aquí se puede agregar lógica para procesar los datos antes de deserializarlos.
+
+	// Deserializar los datos sanitizados de vuelta al tipo `S`
+	err = json.Unmarshal(sanitizedData, &sanitized)
+	if err != nil {
+		return sanitized, errors.New("failed to unmarshal sanitized data: " + err.Error())
+	}
+
+	// Retornar los datos sanitizados y sin errores
+	return sanitized, nil
 }
