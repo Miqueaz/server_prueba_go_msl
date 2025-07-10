@@ -1,65 +1,61 @@
 package auth
 
-import (
-	"main/pkg/client"
-	middleware "main/source/helpers/middlewares"
-	"net/http"
-)
-
 type AuthController struct {
 	authService *AuthService
 }
 
-func injection() *AuthController {
-	return &AuthController{
-		authService: &AuthService{},
-	}
-}
+// func injection() *AuthController {
+// 	return &AuthController{
+// 		authService: &AuthService{},
+// 	}
+// }
 
-func SignIn(res http.ResponseWriter, req *http.Request) {
-	controller := injection()
-	ctx, err := client.Init(res, req)
-	if err != nil {
-		_ = ctx.InternalServerError(err)
-		return
-	}
+// func SignIn(res http.ResponseWriter, req *http.Request) {
+// 	controller := injection()
 
-	dto, err := client.GetDTO[*AuthDTO](req.Context(), string(middleware.DtoKey))
-	if err != nil {
-		_ = ctx.Error("Invalid validated data", err)
-		return
-	}
+// 	println("SignIn called with request body:", req.Body)
+// 	ctx, err := client.Init(res, req)
+// 	if err != nil {
+// 		_ = ctx.InternalServerError(err)
+// 		return
+// 	}
 
-	token, err := controller.authService.signIn(req.Context(), dto.Username, dto.Email, dto.Password)
-	if err != nil {
-		_ = ctx.Error("Authentication failed", err)
-		return
-	}
+// 	dto, err := client.GetDTO[*AuthDTO](req.Context(), string(middleware.DtoKey))
+// 	if err != nil {
+// 		_ = ctx.Error("Invalid validated data", err)
+// 		return
+// 	}
 
-	data := map[string]any{"token": token}
-	_ = ctx.Success("Sign in successful", []any{data})
-}
+// 	token, err := controller.authService.signIn(req.Context(), dto.Username, dto.Email, dto.Password)
+// 	if err != nil {
+// 		_ = ctx.Error("Authentication failed", err)
+// 		return
+// 	}
 
-func SignUp(res http.ResponseWriter, req *http.Request) {
-	controller := injection()
-	ctx, err := client.Init(res, req)
-	if err != nil {
-		_ = ctx.InternalServerError(err)
-		return
-	}
+// 	data := map[string]any{"token": token}
+// 	_ = ctx.Success("Sign in successful", []any{data})
+// }
 
-	dto, err := client.GetDTO[*AuthDTO](req.Context(), string(middleware.DtoKey))
-	if err != nil {
-		_ = ctx.InternalServerError(err)
-		return
-	}
+// func SignUp(res http.ResponseWriter, req *http.Request) {
+// 	controller := injection()
+// 	ctx, err := client.Init(res, req)
+// 	if err != nil {
+// 		_ = ctx.InternalServerError(err)
+// 		return
+// 	}
 
-	result, err := controller.authService.signUp(req.Context(), dto.Username, dto.Email, dto.Password)
-	if err != nil {
-		_ = ctx.Error("Authentication failed", err)
-		return
-	}
+// 	dto, err := client.GetDTO[*AuthDTO](req.Context(), string(middleware.DtoKey))
+// 	if err != nil {
+// 		_ = ctx.InternalServerError(err)
+// 		return
+// 	}
 
-	_ = ctx.Success("Sign up successful", []any{result})
+// 	result, err := controller.authService.signUp(req.Context(), dto.Username, dto.Email, dto.Password)
+// 	if err != nil {
+// 		_ = ctx.Error("Authentication failed", err)
+// 		return
+// 	}
 
-}
+// 	_ = ctx.Success("Sign up successful", []any{result})
+
+// }

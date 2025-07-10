@@ -2,6 +2,7 @@ package modulos
 
 import (
 	base_service "main/pkg/base/service"
+	middleware "main/source/helpers/middlewares"
 	"main/source/helpers/router"
 	modulos_model "main/source/modules/modulos/model"
 )
@@ -15,7 +16,7 @@ func Init() {
 
 func InitRoutes() {
 	var r = router.NewRoute("/modulos")
-	// r.USE(middleware.JWTMiddleware())
+	r.USE(middleware.JWTMiddleware())
 	r.GET("/", Service.Read)
 	r.POST("/", Service.Insert)
 	r.GET("/:id", Service.ReadOne)

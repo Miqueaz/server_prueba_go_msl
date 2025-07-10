@@ -8,6 +8,6 @@ import (
 func AuthRouter() {
 	r := router.NewRoute("/auth")
 
-	r.GET("/sign-in", SignIn, middleware.JWTMiddleware(), middleware.ValidatorMiddleware[AuthDTO]())
+	r.GET("/sign-in", SignIn, middleware.ValidatorMiddleware[AuthDTO]())
 	r.POST("/sign-up", SignUp, middleware.ValidatorMiddleware[AuthDTO]())
 }

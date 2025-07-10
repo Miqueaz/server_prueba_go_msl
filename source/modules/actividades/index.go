@@ -2,6 +2,7 @@ package actividades
 
 import (
 	base_service "main/pkg/base/service"
+	middleware "main/source/helpers/middlewares"
 	"main/source/helpers/router"
 	actividades_model "main/source/modules/actividades/model"
 )
@@ -15,7 +16,7 @@ func Init() {
 
 func InitRoutes() {
 	var r = router.NewRoute("/actividades")
-	// r.USE(middleware.JWTMiddleware())
+	r.USE(middleware.JWTMiddleware())
 	r.GET("/", Service.Read)
 	r.POST("/", Service.Insert)
 	r.GET("/:id", Service.ReadOne)

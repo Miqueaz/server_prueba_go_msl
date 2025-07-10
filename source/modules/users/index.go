@@ -14,7 +14,7 @@ func InitRoutes() {
 	var r = router.NewRoute("/users")
 	// r.USE(middleware.JWTMiddleware())
 	r.GET("/", user_service.Service.Read)
-	r.POST("/", user_service.Service.Insert)
+	// r.POST("/", user_service.Service.Insert)
 	r.GET("/:id", user_service.Service.ReadOne)
 	r.PUT("/:id", user_service.Service.Update)
 	r.DELETE("/:id", user_service.Service.Delete)
