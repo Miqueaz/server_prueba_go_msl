@@ -1,12 +1,9 @@
 package modulosRol
 
 import (
-	base_service "main/pkg/base/service"
-	middleware "main/source/helpers/middlewares"
 	"main/source/helpers/router"
-	modulos_rol_model "main/source/modules/modulosRol/model"
+	modulos_rol_service "main/source/modules/modulosRol/service"
 )
-
 
 func Init() {
 	print("PermisosRol Module Initialized\n")
@@ -15,10 +12,10 @@ func Init() {
 
 func InitRoutes() {
 	var r = router.NewRoute("/modulosRol")
-	r.USE(middleware.JWTMiddleware())
-	r.GET("/", Service.Read)
-	r.POST("/", Service.Insert)
-	r.GET("/:id", Service.ReadOne)
-	r.PUT("/:id", Service.Update)
-	r.DELETE("/:id", Service.Delete)
+	// r.USE(middleware.JWTMiddleware())
+	r.GET("/", modulos_rol_service.Service.Read)
+	r.POST("/", modulos_rol_service.Service.Insert)
+	r.GET("/:id", modulos_rol_service.Service.ReadOne)
+	r.PUT("/:id", modulos_rol_service.Service.Update)
+	r.DELETE("/:id", modulos_rol_service.Service.Delete)
 }

@@ -1,10 +1,10 @@
-package modulos_rol_sanitizer 
+package modulos_rol_model
 
 import (
 	modulos "main/source/modules/modulos/model"
 )
 
 type ModulosRoleSanitizer struct {
-	Role *string
+	Role    *string
 	Modulos []modulos.ModulosStruct
 }
