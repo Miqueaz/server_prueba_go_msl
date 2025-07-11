@@ -41,7 +41,6 @@ func (s *ModulosRolService) Read() ([]modulos_rol_model.ModulosRoleSanitizer, er
 
 	mapRelations := make(map[int][]modulos_model.ModulosStruct)
 	for _, relation := range relations {
-		println(relation.Rol, relation.Permiso)
 		if modulo, exists := mapModulos[*relation.Permiso]; exists {
 			modulo.Id = relation.Id
 			mapRelations[*relation.Rol] = append(mapRelations[*relation.Rol], modulo)

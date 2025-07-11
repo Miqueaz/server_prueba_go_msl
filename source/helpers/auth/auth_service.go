@@ -14,7 +14,14 @@ type AuthService struct {
 	password string
 }
 
-func SignIn(body AuthService) (string, error) {
+func SignIn(crudo map[string]any) (string, error) {
+
+	//Transformar el body a AuthService
+	body := AuthService{
+		username: crudo["username"].(string),
+		email:    crudo["email"].(string),
+		password: crudo["password"].(string),
+	}
 
 	users, err := user_service.Service.Read(map[string]any{"Matricula": body.username})
 	if len(users) <= 0 {
@@ -25,7 +32,11 @@ func SignIn(body AuthService) (string, error) {
 		return "", err
 	}
 
-	if err := crypto.CheckPassword(user.Contrasena, body.password); err != nil {
+	// if err := crypto.CheckPassword(user.Contrasena, body.password); err != nil {
+	// 	return "", errors.New("invalid password")
+	// }
+
+	if user.Contrasena != body.password {
 		return "", errors.New("invalid password")
 	}
 

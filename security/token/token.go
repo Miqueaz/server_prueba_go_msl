@@ -42,6 +42,7 @@ func ValidToken(r string) (*jwt.Token, error) {
 	})
 
 	if err != nil || !token.Valid {
+		println("Token validation error:", err.Error())
 		return nil, errors.New("invalid token")
 	}
 
@@ -49,10 +50,11 @@ func ValidToken(r string) (*jwt.Token, error) {
 }
 
 func getToken(token string) string {
-
-	if len(strings.Split(token, " ")) == 2 {
-		return strings.Split(token, "")[1]
+	parts := strings.Split(token, " ")
+	if len(parts) == 2 && strings.ToLower(parts[0]) == "bearer" {
+		cleaned := strings.Trim(parts[1], "\"")
+		println("✅ Token limpio:", cleaned)
+		return cleaned
 	}
-
 	return ""
 }
