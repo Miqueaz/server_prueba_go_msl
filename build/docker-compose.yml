@@ -1,0 +1,12 @@
+version: "3.9"
+
+services:
+  app:
+    container_name: mi-go-dev
+    image: golang:1.23
+    working_dir: /app
+    volumes:
+      - ../:/app
+    command: go run main.go
+    ports:
+      - "8080:8080" # solo si tu app expone un servidor HTTP
