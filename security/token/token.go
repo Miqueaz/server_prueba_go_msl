@@ -49,10 +49,10 @@ func ValidToken(r string) (*jwt.Token, error) {
 }
 
 func getToken(token string) string {
-
-	if len(strings.Split(token, " ")) == 2 {
-		return strings.Split(token, "")[1]
+	parts := strings.Split(token, " ")
+	if len(parts) == 2 && strings.ToLower(parts[0]) == "bearer" {
+		cleaned := strings.Trim(parts[1], "\"")
+		return cleaned
 	}
-
 	return ""
 }

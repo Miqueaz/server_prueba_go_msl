@@ -1,6 +1,7 @@
 package modules
 
 import (
+	"main/source/helpers/auth"
 	"main/source/modules/actividades"
 	"main/source/modules/actividadesUsuario"
 	"main/source/modules/alertaMedidores"
@@ -54,5 +55,6 @@ func init() {
 	NewModule(tipoBitacora.Init)
 	NewModule(actividadesUsuario.Init)
 	NewModule(users.Init)
+	auth.AuthRouter()
 
 }

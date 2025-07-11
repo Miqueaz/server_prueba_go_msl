@@ -1,28 +1,42 @@
 package auth
 
 import (
-	"context"
 	"errors"
 	"main/pkg/crypto"
 	key "main/security/token"
 	user_model "main/source/modules/users/models"
 	user_service "main/source/modules/users/services"
-	"time"
 )
 
-type AuthService struct{}
+type AuthService struct {
+	username string
+	email    string
+	password string
+}
 
-func (s *AuthService) signIn(ctx context.Context, matricula string, email string, password string) (string, error) {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
+func SignIn(crudo map[string]any) (string, error) {
 
-	users, err := user_model.Model.Find.Where("matricula", "=", matricula).Exec(ctx)
+	//Transformar el body a AuthService
+	body := AuthService{
+		username: crudo["username"].(string),
+		email:    crudo["email"].(string),
+		password: crudo["password"].(string),
+	}
+
+	users, err := user_service.Service.Read(map[string]any{"Matricula": body.username})
+	if len(users) <= 0 {
+		return "", errors.New("user not found")
+	}
 	user := users[0]
 	if err != nil {
 		return "", err
 	}
 
-	if err := crypto.CheckPassword(user.Contrasena, password); err != nil {
+	// if err := crypto.CheckPassword(user.Contrasena, body.password); err != nil {
+	// 	return "", errors.New("invalid password")
+	// }
+
+	if user.Contrasena != body.password {
 		return "", errors.New("invalid password")
 	}
 
@@ -34,9 +48,7 @@ func (s *AuthService) signIn(ctx context.Context, matricula string, email string
 	return token, nil
 }
 
-func (a *AuthService) signUp(ctx context.Context, username string, email string, password string) (string, error) {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
+func SignUp(username string, email string, password string) (string, error) {
 
 	hashedPassword, err := crypto.EncryptPassword(password)
 	if err != nil {
